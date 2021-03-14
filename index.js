@@ -1,89 +1,81 @@
-// # = if
-// |# = else
-// : = variable
-// === = equality
-// /n = broken line
-
 var string = `
-    |Comment|
+10 print "estando este programa simples"
 
-    :r = 0
-    #( :r === 0 ) {
-        !('certo')
-    } |# {
-        !('errado')
-    }
+20 a = 10
+
+30 gosub 80
+
+40 if a > 50 then goto 110
+
+50 if a < 5 then goto 75
+if a == 5 then goto 75
+if a > 5 then goto 75
+if a != 5 then goto 75
+if 5 == a then goto 75
+if 3 == 5 then goto 75
+
+60 print a
+
+65 a = a - 1
+
+75 goto 110
+
+80 a = a * 2 + 44
+80 a = a % 2 ^ 44
+
+
+90 print a
+
+100 return
+
+110 goto 10
 `;
 
-var bananaSplit = string.split(" ");
+var bananaSplit = string.split("\n");
 
 var bananaClear = bananaSplit.filter((value) => {
   return value !== "";
 });
 
+console.log("STRING ==>", bananaClear);
+
 for (var i = 0; i < bananaClear.length; i++) {
-  bananaClear[i] = bananaClear[i].replace(/\s/g, "");
   var type = "";
+  var subType = "";
   var error = "";
 
-  if (!isNaN(bananaClear[i])) {
-    type = "number";
-  }
-
-  if (bananaClear[i].includes(":")) {
-    type = "variable";
-  }
-
-  if (bananaClear[i] === "") {
-    type = "clear";
-  }
-
-  if (bananaClear[i].includes("#(")) {
-    type = "if";
-    if (bananaClear[i] !== "#(") {
-      error = "Invalid if statment";
-    }
-  }
-
-  if (bananaClear[i].includes("|#")) {
-    type = "else";
-    if (bananaClear[i] !== "|#") {
-      error = "Invalid reverse if statment";
-    }
-  }
-
-  if (bananaClear[i].includes("!('") & bananaClear[i].includes("')")) {
-    type = "print";
+  if (bananaClear[i].match(/print ([A-z]|"*")/g)) {
+    type = "command";
+    subType = "print";
   }
 
   if (
-    bananaClear[i] === "{" ||
-    bananaClear[i] === "}" ||
-    bananaClear[i] === "(" ||
-    bananaClear[i] === ")"
+    bananaClear[i].match(
+      /([a-zA-Z])+ = (\d|(\d|[a-zA-Z] (\^|%|-|\+|\*|\/) \d|[a-zA-Z]))/g
+    )
   ) {
-    type = "token";
+    type = "attribution";
+    subType = "expression";
   }
 
-  if (bananaClear[i] === "=") {
-    type = "relational";
+  if (bananaClear[i].match(/return ?/g)) {
+    type = "command";
+    subType = "return";
   }
 
-  if (bananaClear[i] === "===" || bananaClear[i] === "!==") {
-    type = "comparable";
+  if (bananaClear[i].match(/goto \d+/g)) {
+    type = "command";
+    subType = "goto";
   }
 
-  if (bananaClear[i].includes("|")) {
-    if (
-      bananaClear[i].charAt(0) ===
-      bananaClear[i].charAt(bananaClear[i].length - 1)
-    ) {
-      type = "comment";
-    }
+  if (bananaClear[i].match(/gosub \d+/g)) {
+    type = "command";
+    subType = "gosub";
   }
 
-  if (!type) {
-    error = "Sintax Error";
+  if (bananaClear[i].match(/if (.)+ ([=][=]|[!][=]|[>]|[<]) (.)+ ?\d+/g)) {
+    type = "command";
+    subType = "if";
   }
 
   if (error !== "") {
@@ -95,9 +87,10 @@ for (var i = 0; i < bananaClear.length; i++) {
   } else {
     bananaClear[i] = {
       type,
+      subType,
       value: bananaClear[i],
     };
   }
 }
 
-console.log("result ==D ", bananaClear);
+console.log("RESULT ==> ", bananaClear);
